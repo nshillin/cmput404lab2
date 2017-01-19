@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import socket, os, sys
+import socket, os, sys, errno
 
 serverSocket =  socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
