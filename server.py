@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import socket
+import socket, os, sys
 
 serverSocket =  socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -11,6 +11,16 @@ serverSocket.listen(5)
 while True:
     (incomingSocket,address) = serverSocket.accept()
     print "got a connection from %s" % (repr(address))
+    try:
+        reaped = os.waitpid(0, os.WNOHANG)
+    except OSError,e:
+        if e.errno != socket.errno.ECHILD:
+            raise
+    else:
+        print "Reaped %s" % (repr(reaped))
+
+    if (os.fork() != 0):
+        continue
 
     clientSocket =  socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # AF_INET means we want an IPv4 socket
@@ -35,11 +45,10 @@ while True:
                 request.extend(part)
                 clientSocket.sendall(part)
             else:
-                break
+                sys.exit(0) # quit the program
 
         if len(request) > 0:
             print request
-
 
         response = bytearray()
         while True:
@@ -54,7 +63,7 @@ while True:
                 response.extend(part)
                 incomingSocket.sendall(part)
             else:
-                break
-            
+                sys.exit(0) # quit the program
+
         if len(response) > 0:
             print response
