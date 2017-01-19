@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import socket, os, sys, errno
+import socket, os, sys, errno, select
 
 serverSocket =  socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -67,3 +67,10 @@ while True:
 
         if len(response) > 0:
             print response
+
+        select.select(
+            [incomingSocket, clientSocket], # read
+            [],                             # write
+            [incomingSocket, clientSocket], # exceptions
+            1.0                             # timeout
+        )
